@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "reminder-bot"
+version = "0.1.0"
+description = ""
+authors = ["mengyewgau <gaumengyew@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+python-telegram-bot = {extras = ["job-queue"], version = "^21.4"}
+flask = "^3.0.3"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
