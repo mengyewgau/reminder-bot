@@ -18,9 +18,9 @@ server = Flask(__name__)
 @server.route('/webhook', methods=['POST'])
 def webhook() -> str:
     data = request.json
-    google_id = data["id"]
+    request_id = data["id"]
 
-    user_id = user_ids[google_id]
+    user_id = user_ids[request_id]
     if user_notifs[user_id]:
         logger.info(f"Notification sent for {user_id}")
         send_reminder(user_id, data['event'])
@@ -33,6 +33,14 @@ async def send_reminder(user_id, msg):
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user_id = update.message.chat_id
     user_notifs[user_id] = True
+
+    if (len(context.args) > 1):
+        await update.message.reply_text("Specify only one ID")
+        return
+    
+    if (len(context.args) == 1):
+        requests_id = context.args[0]
+        user_notifs[user_id] = requests_id
     
     await update.message.reply_text(f'Pushing notifications for {update.effective_user.first_name}!')
 
@@ -50,12 +58,25 @@ async def status(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     else:
         await update.message.reply_text(f'Reminders for {update.effective_user.first_name} are off!')
 
+async def setId(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    user_id = update.message.chat_id
+
+    if (len(context.args) > 1):
+        await update.message.reply_text("Specify only one ID")
+        return
+
+    requests_id = context.args[0]
+    user_notifs[user_id] = requests_id
+    
+    await update.message.reply_text(f'Telegram ID {update.effective_user.username} associated with Request ID {requests_id}')
+
     
 app = ApplicationBuilder().token(telegram_bot_token).build()
 
 app.add_handler(CommandHandler("start", start))
 app.add_handler(CommandHandler("stop", stop))
 app.add_handler(CommandHandler("status", status))
+app.add_handler(CommandHandler("setId", setId))
 
 server.run(port=5000)
 app.run_polling()
