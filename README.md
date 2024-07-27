@@ -25,5 +25,8 @@ Specifies the request ID to be associated for the Telegram user.
 ```
 Turns off notifications for the Telegram user.
 
+
+```
 /status
+```
 Check if notifs are active.
